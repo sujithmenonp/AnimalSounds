@@ -5,18 +5,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,95 +21,112 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalsounds.ui.theme.AnimalSoundsTheme
 
+data class Animal(val name: String, val imageRes: Int, val soundRes: Int)
+
 class MainActivity : ComponentActivity() {
     private var mediaPlayer: MediaPlayer? = null
 
+    private val animals = listOf(
+        Animal("Tiger", R.drawable.tiger, R.raw.tiger),
+        Animal("Elephant", R.drawable.elephant, R.raw.elephant),
+        Animal("Dog", R.drawable.dog, R.raw.dog)
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             AnimalSoundsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center // Centers the content inside the Box
-                    ) {
-                        ImageButtonExample(
-                            onClick = {
-                                playSound()
-                            }
-                        )
-                    }
-                }
+                AnimalScreen(
+                    animals = animals,
+                    playSound = { soundRes -> playSound(soundRes) }
+                )
             }
         }
     }
 
-     // Declare MediaPlayer as a class-level variable
-
-    private fun playSound() {
-        // Check if the MediaPlayer is already playing
+    private fun playSound(soundRes: Int) {
+        // Stop and reset the MediaPlayer if it is already playing
         if (mediaPlayer?.isPlaying == true) {
-            mediaPlayer?.stop() // Stop if it's already playing
-            mediaPlayer?.reset() // Reset to prepare it for another sound
+            mediaPlayer?.stop()
+            mediaPlayer?.reset()
         }
 
-        // Create a new MediaPlayer instance or reset the existing one
-        mediaPlayer = MediaPlayer.create(this, R.raw.tiger) // Replace with your MP3 resource
-
-        // Start playing the sound
-        mediaPlayer?.start();
+        // Create a new MediaPlayer instance or reuse an existing one
+        mediaPlayer = MediaPlayer.create(this, soundRes)
+        mediaPlayer?.start()
 
         // Optionally show a toast
-        Toast.makeText(this, "Sound played!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Playing sound...", Toast.LENGTH_SHORT).show()
 
-        // Release the MediaPlayer when the sound finishes playing
+        // Release MediaPlayer when the sound finishes
         mediaPlayer?.setOnCompletionListener {
-            it.release() // Release the MediaPlayer when the sound finishes playing
-            mediaPlayer = null // Reset the mediaPlayer reference
+            it.release()
+            mediaPlayer = null
         }
     }
-
 }
 
 @Composable
-fun ImageButtonExample(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    var isPressed by remember { mutableStateOf(false) }
+fun AnimalScreen(animals: List<Animal>, playSound: (Int) -> Unit) {
+    var currentIndex by remember { mutableStateOf(0) }
+    val currentAnimal = animals[currentIndex]
 
+    Scaffold { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Crossfade(targetState = currentAnimal) { animal ->
+                    AnimalDisplay(
+                        animal = animal,
+                        onClick = { playSound(animal.soundRes) }
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    currentIndex = (currentIndex + 1) % animals.size
+                }) {
+                    Text("Next Animal")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AnimalDisplay(animal: Animal, onClick: () -> Unit) {
     Box(
-        modifier = modifier
-            .size(400.dp)
-            .clickable(onClick = {
-                onClick()
-                isPressed = true
-            }) // Trigger onClick on button click
-            .then(Modifier.animateContentSize()) // Animate size change when clicked
+        modifier = Modifier
+            .size(300.dp)
+            .clickable(onClick = onClick)
+            .animateContentSize(),
+        contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.tiger), // Replace with your image
-            contentDescription = "Play Tiger Sound",
+            painter = painterResource(id = animal.imageRes),
+            contentDescription = "Play ${animal.name} Sound",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-
-        // Change button appearance when pressed
-        if (isPressed) {
-            // Apply a visual effect like scale or change opacity
-        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ImageButtonExamplePreview() {
+fun AnimalScreenPreview() {
+    val sampleAnimals = listOf(
+        Animal("Tiger", R.drawable.tiger, R.raw.tiger),
+        Animal("Elephant", R.drawable.elephant, R.raw.elephant),
+        Animal("Dog", R.drawable.dog, R.raw.dog)
+    )
+
     AnimalSoundsTheme {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            ImageButtonExample(onClick = {})
-        }
+        AnimalScreen(
+            animals = sampleAnimals,
+            playSound = {}
+        )
     }
 }

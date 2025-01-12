@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.animalsounds"
+    namespace = "com.proletarian.animalsounds"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.animalsounds"
+        applicationId = "com.proletarian.animalsounds"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

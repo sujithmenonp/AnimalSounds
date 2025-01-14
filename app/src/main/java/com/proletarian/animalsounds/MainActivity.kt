@@ -35,6 +35,11 @@ class MainActivity : ComponentActivity() {
         Animal("Dog", R.drawable.dog, R.raw.dog),
         Animal("Cow", R.drawable.cow, R.raw.cow),
         Animal("Horse", R.drawable.horse, R.raw.horse),
+        Animal("Pig", R.drawable.pig, R.raw.pig),
+        Animal("Sheep", R.drawable.sheep, R.raw.sheep),
+
+        Animal("Cat", R.drawable.cat, R.raw.cat),
+
 
 
         )
@@ -155,7 +160,12 @@ fun AnimalScreenPreview() {
     val sampleAnimals = listOf(
         Animal("Tiger", R.drawable.tiger, R.raw.tiger),
         Animal("Elephant", R.drawable.elephant, R.raw.elephant),
-        Animal("Dog", R.drawable.dog, R.raw.dog)
+        Animal("Dog", R.drawable.dog, R.raw.dog),
+        Animal("Cow", R.drawable.cow, R.raw.cow),
+        Animal("Horse", R.drawable.horse, R.raw.horse),
+        Animal("Pig", R.drawable.pig, R.raw.pig),
+        Animal("Sheep", R.drawable.sheep, R.raw.sheep),
+        Animal("Cat", R.drawable.cat, R.raw.cat),
     )
 
     AnimalSoundsTheme {
